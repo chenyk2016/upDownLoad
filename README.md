@@ -3,7 +3,7 @@
 ## 基于iSroll 5.0实现的上拉加载和下拉刷新
 [演示地址]（https://github.com/chenyk2016/upDownLoad）
 
-###1.建立html
+### 1.建立html
 
 	<!DOCTYPE html>
 	<html>
@@ -34,7 +34,7 @@
 	</body>
 	</html>
 
-###2.样式和图片
+### 2.样式和图片
 
 	<style type="text/css">
 		*{ padding: 0;margin: 0; }
@@ -45,7 +45,7 @@
 		.iscroll .loading { background: url(./img/loading.gif) no-repeat left center; padding-left: 30px; }
 	</style>
 
-###3.引入js文件
+### 3.引入js文件
 
 	<script src="iscroll-probe.js"></script>
 	<script src="./js/updownload.js"></script>
