@@ -50,7 +50,7 @@ iscroll为滚动元素，iscroll_wrap为固定大小的容器。
 	</style>
 
 >注：
-/*iscroll的min-height: 101%; 是避免内容高度小于.iscroll_wrap的高度时，无法使用iScroll*/
+iscroll的min-height: 101%; 是避免内容高度小于.iscroll_wrap的高度时，无法使用iScroll
 
 ### 3.引入js文件
 
