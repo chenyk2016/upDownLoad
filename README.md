@@ -1,8 +1,9 @@
-# Updownload
+# Updownload.js
 
-## 基于iSroll 5.0实现的上拉加载和下拉刷新
+## 基于iSroll 5.0实现的上拉加载和下拉刷新插件
 移动端效果比较好，开发者工具打开后，需要刷新下页面。
-[演示地址:]https://chenyk2016.github.io/upDownLoad/demo.html
+>[演示地址:] https://chenyk2016.github.io/upDownLoad/demo.html
+>[github地址:] https://github.com/chenyk2016/upDownLoad/
 
 
 ### 1.建立html
@@ -38,7 +39,7 @@
 
 >两个容器iscroll_wrap和iscroll；
 iscroll为滚动元素，iscroll_wrap为固定大小的容器。
-可以在iscroll新建列表
+可以在iscroll里新建列表等
 
 ### 2.样式和图片
 
@@ -56,8 +57,8 @@ iscroll的min-height: 101%; 是避免内容高度小于.iscroll_wrap的高度时
 
 ### 3.引入js文件
 
-	<script src="iscroll-probe.js"></script>
-	<script src="./js/updownload.js"></script>
+	<script src="iscroll-probe.js"></script>  // 引入iScroll插件
+	<script src="./js/updownload.js"></script>  // 扩展的源码
 	<script type="text/javascript">
 		// 1.创建实例
 		var myRefresh = new UpDownLoad( "#iscroll_wrap" );
@@ -88,9 +89,9 @@ iscroll的min-height: 101%; 是避免内容高度小于.iscroll_wrap的高度时
 
 >>注意：
 上拉和下拉都有两个状态。为了显示成功状态之前执行刷新DOM，需要将操作DOM的行为放在回调里执行。
-
 	myRefresh.success(fn);
 	myRefresh.error(fn);
+如果想看具体实现，可以查看代码源文件updownload.js
 
 
 ## 完整演示
