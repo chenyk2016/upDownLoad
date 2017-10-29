@@ -1,7 +1,9 @@
 # Updownload
 
 ## 基于iSroll 5.0实现的上拉加载和下拉刷新
+移动端效果比较好，开发者工具打开后，需要刷新下页面。
 [演示地址:]https://chenyk2016.github.io/upDownLoad/demo.html
+
 
 ### 1.建立html
 
