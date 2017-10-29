@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8">
@@ -7,26 +7,19 @@
 
 <style type="text/css">
 *{ padding: 0;margin: 0; }
+h2{ text-align: center; border-bottom: 1px solid #ccc; height: 40px; background-color: #eee; }
 .iscroll_wrap { position: absolute; top: 40px; bottom: 0; width: 100%; background-color: #ccc; overflow: hidden; }
+/* min-height: 101%; 是避免内容高度小于.iscroll_wrap 的高度时，无法使用iScroll*/
 .iscroll { position: absolute; top: 0; left: 0; width: 100%; min-height: 101%; background-color: #fff; }
 .iscroll .loading { background: url(./img/loading.gif) no-repeat left center; padding-left: 30px; }
-
-/* .page_loading { position: absolute; top: 100px; left: 0; right: 0; height: 30px; z-index: 10; background: url(./img/loading.gif) no-repeat center 30%; background-size: 30px; }
-.no_mes { position: absolute; top: 20%; left: 0; right: 0; text-align: center; z-index: 2; font-size: 20px; }
-.search_wrap { box-sizing: border-box; padding: 0 10px; margin: 10px 0; position: relative; width: 100%; }
-.search_wrap input { box-sizing: border-box; display: inline-block; width: 100%; height: 35px; padding: 0 10px 0 30px; margin: 0; font-size: 14px; background-color: transparent; background: url(./img/icon_search.png) no-repeat 0% center; background-size: 30px; border-radius: 20px; border: 2px solid rgba(0, 0, 0, .2); outline: 0; } */
 
 </style>
 </head>
 <body>
+<h2>IScroll上拉加载下拉刷新</h2>
 <div class="iscroll_wrap" id="iscroll_wrap">
-	<div class="iscroll iscroll_loading">
+	<div class="iscroll">
 
-		<!-- <div class='no_mes' style="display: none;"><span class='no_mes_inner'> 暂无数据 </span></div> -->
-		<!-- <div class='page_loading' ></div> -->
-		<div class="search_wrap">
-			<input id="search" type="text" name="search"  placeholder="按巡楼主题，任务描述和发布人模糊查询">
-		</div>
 		<!-- 方案列表 -->
 		<div class="task_wrap" >
 			<P>das</P>
@@ -51,34 +44,308 @@
 </div>
 
 </body>
-<script src="jquery-2.1.0.js"></script>
 <script src="iscroll-probe.js"></script>
 <script type="text/javascript">
-	//上拉加载，下拉刷新
-	var upDownLoad = new UpDownLoad( "iscroll_wrap" );
-	upDownLoad.on("pullDown", function (d) {
-		console.log('pullDown');
-		setTimeout(function (res) {
-			var taskWrap = document.querySelector(".task_wrap");
-			taskWrap.innerHTML = "<p>刷新as</p><p>a刷新s</p><p>刷新as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p>";
-			upDownLoad.success();
-			// upDownLoad.error();
-		}, 1000);
-		
-	} ).on("pullUp", function (d) {
-		console.log('pullUp');
-		setTimeout(function (res) {
-			
+	// UpDownLoad扩展 chen yk  ** https://github.com/chenyk2016
+	(function (d) {
+		var unions = (function (window, document, Math) {
+			var me = {
+				// 4. 移动端判断
+				isMobile: function () {
+					if(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)){
+						return true;
+					}else {
+						return false;
+					}
+				},
+				// 5. 
+				hasClass: function ( elements,cName ){
+				   return !!elements.className.match( new RegExp( "(\\s|^)" + cName + "(\\s|$)") ); // ( \\s|^ ) 判断前面是否有空格 （\\s | $ ）判断后面是否有空格 两个感叹号为转换为布尔值 以方便做判断
+				},
+				addClass: function ( elements,cName ){
+				   if( !this.hasClass( elements,cName ) ){
+				      elements.className += " " + cName;
+				   }
+				},
+				removeClass: function ( elements,cName ){
+				   if( this.hasClass( elements,cName ) ){
+				      elements.className = elements.className.replace( new RegExp( "(\\s+|^)" + cName + "(\\s+|$)" )," " ); // replace方法是替换
+				   }
+				}
+			};
 
-			upDownLoad.success(function () {
-				var taskWrap = document.querySelector(".task_wrap");
-				var dom = document.createElement("div");
-				dom.innerHTML = "<p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p>";
-				taskWrap.appendChild(dom);
+			return me;
+		})();
+
+		function UpDownLoad( selector ){
+			var _self = this;
+			_self.myScroll = new IScroll(selector, {
+				probeType: 2,         //指针反应灵敏度1-3（高），
+				scrollbars: true,     //滚动条
+				fadeScrollbars: true, //闲置时隐藏滚动条
+				click: true,          //点击
+				disableTouch: false   //触摸
 			});
-			// upDownLoad.error();
-		}, 1000);
-	});
+
+			_self.state = "leisure";	//当前滚动状态
+			_self.prevState = "";            //最后调用成功的状态
+			_self.wraper = _self.myScroll.wrapper;
+
+			// 创建Dom
+			var eleDown = document.createElement("div");
+			eleDown.className = "refresh_wrap";
+			eleDown.innerHTML = "<span class='refresh_load' > ↓ 下拉刷新 </span>";
+			eleDown.style.cssText = "position: absolute; top: -40px; left: 0; right: 0; height: 40px; line-height: 40px; padding: 0; margin: 0 auto; text-align: center; font-size: 14px;";
+			var eleUp = document.createElement("div");
+			eleUp.className = "load_wrap";
+			eleUp.innerHTML = "<span class='load_more'>↑ 上拉加载更多</span>";
+			eleUp.style.cssText = "position: absolute; bottom: -40px; left: 0; right: 0; height: 40px; line-height: 40px; padding: 0; margin: 0 auto; text-align: center; font-size: 14px;";
+
+			_self.wraper.querySelector(".iscroll").appendChild( eleDown );
+			_self.wraper.querySelector(".iscroll").appendChild( eleUp );
+
+		    _self.pullDown = {
+		        parent:  _self.wraper.querySelector(".iscroll"),
+		        el: _self.wraper.querySelector(".refresh_load"),
+		        static: function (d) {
+		            this.el.innerHTML = " ↓ 下拉刷新";
+		        },
+		        move: function (d) {
+		            this.el.innerHTML = " ↑ 释放立即刷新";
+		        },
+		        loading:function (d) {
+		            this.parent.style.top = 50+"px";
+		            this.el.innerHTML = " 正在刷新 ";
+		            unions.addClass(this.el, "loading");
+		            // 打开上拉功能
+		            _self.pullUp.locked = false;
+		        },
+		        finish: function (fn) {
+		            
+		            unions.removeClass(this.el , "loading"  );
+		            this.el.innerHTML = " 刷新成功 ";
+		            var _this = this;
+		            setTimeout(function (d) {
+		            	// jshint -W084
+		            	fn && fn();
+		            	// jshint +W084
+		                _this.clear();
+		                _self.myScroll.refresh();
+		                
+		            }, 1000);
+		        },
+		        clear: function (d) {
+		            this.parent.style.top = "0";
+		            unions.removeClass(this.el , "loading");
+		            this.static();
+		            
+		        },
+		        error: function ( fn ) {
+
+		            unions.removeClass(this.el , "loading"  );
+		            this.el.innerHTML = " 刷新失败 ";
+		            var _this = this;
+		            setTimeout(function (d) {
+		            	fn && fn();
+		                _this.clear();
+		                _self.myScroll.refresh();
+		            }, 1000);
+		            // 关闭上拉
+		            _self.pullUp.close();
+		        }
+		    };
+
+			_self.pullUp = {
+				parent:  _self.wraper.querySelector(".iscroll"),
+				el: _self.wraper.querySelector(".load_more"),
+				locked: false,	 //关闭上拉事件
+				static: function (d) {
+					this.el.innerHTML = " ↑ 上拉加载";
+				},
+				move: function (d) {
+					this.el.innerHTML = " ↓ 释放立即加载";
+				},
+				loading:function (d) {
+					this.parent.style.top = -50+"px";
+					this.el.innerHTML = " 正在加载 ";
+					unions.addClass(this.el, "loading");
+				},
+				finish: function (fn) {
+					unions.removeClass(this.el , "loading"  );
+					this.el.innerHTML = " 加载成功 ";
+
+					var _this = this;
+		            setTimeout(function (d) {
+		            	fn && fn();
+		                _this.clear();
+		                _self.myScroll.refresh();
+		            }, 1000);
+				},
+				clear:function (d) {
+					this.static();
+					unions.removeClass(this.el , "loading");
+					this.parent.style.top = "0";
+				},
+				error: function ( fn ) {
+
+				    unions.removeClass(this.el , "loading"  );
+				    this.el.innerHTML = " 加载失败 ";
+				    var _this = this;
+				    setTimeout(function (d) {
+				    	fn && fn();
+				        _this.clear();
+				        _self.myScroll.refresh();
+				    }, 1000);
+				},
+				close:function (d) {
+					this.el.innerHTML = " 没有数据了 ";
+					unions.removeClass(this.el, "loading"  );
+					this.locked = true;
+				}
+			};
+
+			// 兼容pc使用
+			if (unions.isMobile()  ) {
+				_self.wraper.addEventListener("touchend", clickEnd);
+			} else {
+				_self.myScroll.on("scrollEnd", clickEnd);
+			}
+
+			function clickEnd(d) {
+				// 下拉刷新
+				if (_self.state === "refresh") {
+					_self.state = "busying";
+					_self.prevState = "refresh";
+					//清空所有状态
+					_self.pullDown.loading();
+					// 用户回调
+					_self._user_pullDown && _self._user_pullDown();
+				}
+				// 上啦加载
+				if (_self.state === "loadMore") {
+					_self.state = "busying";
+					_self.prevState = "loadMore";
+					//console.log( "上拉" );
+
+					_self.pullUp.loading();
+					// 用户回调
+					_self._user_pullUp && _self._user_pullUp();
+				}
+
+				setTimeout( function (d) {
+					_self.state = "leisure";
+				},2000);
+			}
+
+			_self.myScroll.on("scroll", function () {
+				// console.log(this.y);
+				//console.log( this.maxScrollY - this.y )
+				// 下拉
+				if ( _self.state === "leisure" && this.y >= 50) {
+					_self.state = "refresh";
+					_self.pullDown.move();
+				}
+
+				// 取消下拉
+				if (  _self.state === "refresh" && this.y < 50 ) {
+					_self.state = "leisure";
+					_self.pullDown.static();
+				}
+
+				if (!_self.pullUp.locked) {
+					// 上拉
+					if ( _self.state === "leisure" && this.maxScrollY - this.y > 50 ) {
+						_self.state = "loadMore";
+						_self.pullUp.move();
+					}
+					// 取消上拉
+					if ( _self.state === "loadMore" && this.maxScrollY - this.y < 50 ) {
+						_self.state = "leisure";
+						_self.pullUp.static();
+					}
+				}
+			});
+		}
+		UpDownLoad.prototype = {
+			// 綁定事件
+			// _user_pullDown : 下拉事件
+			// _user_pullUp : 上拉事件
+			on: function(name , fn){
+				var That = this;
+				this["_user_"+name] = fn;
+				return this;
+			},
+			//加载成功
+			success :function ( fn ){
+				if (this.prevState === "refresh" || !this.prevState ) {
+					this.pullDown.finish(fn);
+					return ;
+				}
+				if (this.prevState === "loadMore") {
+					this.pullUp.finish(fn);
+					return;
+				}
+			},
+			error:function (fn) {
+				if (this.prevState === "loadMore" ) {
+					this.pullUp.error(fn);
+				} else{
+					this.pullDown.error(fn);
+				}
+			}
+		};
+
+		// UpDownLoad.unions = unions;
+
+		if ( typeof module != 'undefined' && module.exports ) {
+			module.exports = UpDownLoad;
+		} else if ( typeof define == 'function' && define.amd ) {
+		        define( function () { return UpDownLoad; } );
+		} else {
+			window.UpDownLoad = UpDownLoad;
+		}
+
+	})(window, document, Math);
+	
+
+	// 使用
+	window.onload = function () {
+		var myRefresh = new UpDownLoad( "#iscroll_wrap" );
+
+		myRefresh.on("pullDown", function (d) {
+			console.log('pullDown');
+			// 延时器模拟正在加载效果
+			var taskWrap = document.querySelector(".task_wrap");
+			taskWrap.innerHTML = "";
+			setTimeout(function (res) {
+				// 刷新成功后执行
+				myRefresh.success(function (d) {
+					var taskWrap = document.querySelector(".task_wrap");
+					taskWrap.innerHTML = "<p>刷新as</p><p>a刷新s</p><p>刷新as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p>";
+					
+				});
+				// 刷新失败后执行
+				// myRefresh.error();
+			}, 1000);
+			
+		} ).on("pullUp", function (d) {
+			console.log('pullUp');
+			setTimeout(function (res) {
+				// 加载成功后执行
+				myRefresh.success(function () {
+					var taskWrap = document.querySelector(".task_wrap");
+					var dom = document.createElement("div");
+					dom.innerHTML = "<p>加载</p><p>加载</p><p>加载</p><p>加载</p><p>加载</p><p>加载</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p>";
+					taskWrap.appendChild(dom);
+				});
+				// 加载失败后执行
+				// myRefresh.error();
+			}, 1000);
+		});
+	};
+		
+	
+	
 </script>
 
 
