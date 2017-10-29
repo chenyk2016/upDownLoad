@@ -59,7 +59,7 @@ h2{ text-align: center; border-bottom: 1px solid #ccc; height: 40px; background-
 					
 				});
 				// 刷新失败后执行
-				// myRefresh.error();
+				// myRefresh.error(fn);
 			}, 1000);
 			
 		} ).on("pullUp", function (d) {
@@ -73,7 +73,7 @@ h2{ text-align: center; border-bottom: 1px solid #ccc; height: 40px; background-
 					taskWrap.appendChild(dom);
 				});
 				// 加载失败后执行
-				// myRefresh.error();
+				// myRefresh.error(fn);
 			}, 1000);
 		});
 	};

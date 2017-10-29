@@ -1,6 +1,7 @@
 // UpDownLoad扩展 chen yk  ** https://github.com/chenyk2016/upDownLoad
-(function (d) {
-	var unions = (function (window, document, Math) {
+
+(function (window, document, Math) {
+	var unions = (function () {
 		var me = {
 			// 4. 移动端判断
 			isMobile: function () {
