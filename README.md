@@ -1,8 +1,11 @@
 ##Updownload
+
 基于iSroll 5.0实现的上拉加载和下拉刷新
 
 1.创建实例
+
 	var myRefresh = new UpDownLoad( "#iscroll_wrap" );
+
 2.绑定事件 
 
 	myRefresh.on("pullDown", function (d) {
@@ -29,7 +32,9 @@
 	});
 
 上拉和下拉都有两个状态
+
 	myRefresh.success(fn);
 	myRefresh.error(fn);
+	
 为了显示成功状态之前执行刷新DOM，需要将操作DOM的行为放在回调里执行。
 
