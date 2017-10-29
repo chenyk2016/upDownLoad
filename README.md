@@ -34,6 +34,10 @@
 	</body>
 	</html>
 
+>两个容器iscroll_wrap和iscroll；
+iscroll为滚动元素，iscroll_wrap为固定大小的容器。
+可以在iscroll新建列表
+
 ### 2.样式和图片
 
 	<style type="text/css">
@@ -44,6 +48,9 @@
 		.iscroll { position: absolute; top: 0; left: 0; width: 100%; min-height: 101%; background-color: #fff; }
 		.iscroll .loading { background: url(./img/loading.gif) no-repeat left center; padding-left: 30px; }
 	</style>
+
+>注：
+/*iscroll的min-height: 101%; 是避免内容高度小于.iscroll_wrap的高度时，无法使用iScroll*/
 
 ### 3.引入js文件
 
@@ -79,6 +86,7 @@
 
 >>注意：
 上拉和下拉都有两个状态。为了显示成功状态之前执行刷新DOM，需要将操作DOM的行为放在回调里执行。
+
 	myRefresh.success(fn);
 	myRefresh.error(fn);
 
