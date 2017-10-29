@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>下拉刷新，上拉加载</title>
+
+<style type="text/css">
+*{ padding: 0;margin: 0; }
+.iscroll_wrap { position: absolute; top: 40px; bottom: 0; width: 100%; background-color: #ccc; overflow: hidden; }
+.iscroll { position: absolute; top: 0; left: 0; width: 100%; min-height: 101%; background-color: #fff; }
+.iscroll .loading { background: url(./img/loading.gif) no-repeat left center; padding-left: 30px; }
+
+/* .page_loading { position: absolute; top: 100px; left: 0; right: 0; height: 30px; z-index: 10; background: url(./img/loading.gif) no-repeat center 30%; background-size: 30px; }
+.no_mes { position: absolute; top: 20%; left: 0; right: 0; text-align: center; z-index: 2; font-size: 20px; }
+.search_wrap { box-sizing: border-box; padding: 0 10px; margin: 10px 0; position: relative; width: 100%; }
+.search_wrap input { box-sizing: border-box; display: inline-block; width: 100%; height: 35px; padding: 0 10px 0 30px; margin: 0; font-size: 14px; background-color: transparent; background: url(./img/icon_search.png) no-repeat 0% center; background-size: 30px; border-radius: 20px; border: 2px solid rgba(0, 0, 0, .2); outline: 0; } */
+
+</style>
+</head>
+<body>
+<div class="iscroll_wrap" id="iscroll_wrap">
+	<div class="iscroll iscroll_loading">
+
+		<!-- <div class='no_mes' style="display: none;"><span class='no_mes_inner'> 暂无数据 </span></div> -->
+		<!-- <div class='page_loading' ></div> -->
+		<div class="search_wrap">
+			<input id="search" type="text" name="search"  placeholder="按巡楼主题，任务描述和发布人模糊查询">
+		</div>
+		<!-- 方案列表 -->
+		<div class="task_wrap" >
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+			<P>das</P>
+		</div>
+
+	</div>
+</div>
+
+</body>
+<script src="jquery-2.1.0.js"></script>
+<script src="iscroll-probe.js"></script>
+<script type="text/javascript">
+	//上拉加载，下拉刷新
+	var upDownLoad = new UpDownLoad( "iscroll_wrap" );
+	upDownLoad.on("pullDown", function (d) {
+		console.log('pullDown');
+		setTimeout(function (res) {
+			var taskWrap = document.querySelector(".task_wrap");
+			taskWrap.innerHTML = "<p>刷新as</p><p>a刷新s</p><p>刷新as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p>";
+			upDownLoad.success();
+			// upDownLoad.error();
+		}, 1000);
+		
+	} ).on("pullUp", function (d) {
+		console.log('pullUp');
+		setTimeout(function (res) {
+			
+
+			upDownLoad.success(function () {
+				var taskWrap = document.querySelector(".task_wrap");
+				var dom = document.createElement("div");
+				dom.innerHTML = "<p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p><p>as</p>";
+				taskWrap.appendChild(dom);
+			});
+			// upDownLoad.error();
+		}, 1000);
+	});
+</script>
+
+
+</html>
